@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Info.plist para o aplicativo Flutter com autenticação Keycloak no iOS.
+
+  Configurações importantes de segurança:
+
+  1. CFBundleURLSchemes: Registra o URL scheme personalizado para receber
+     o callback OAuth2 do Keycloak. O valor 'com.example.app' deve
+     corresponder exatamente ao redirectUri configurado no Keycloak e
+     na AppConfig. O flutter_appauth usa ASWebAuthenticationSession
+     (iOS 12+) que é o mecanismo seguro de autenticação do sistema.
+
+  2. NSAppTransportSecurity: Em desenvolvimento, pode ser necessário
+     permitir conexões HTTP para servidores locais. Em PRODUÇÃO,
+     NUNCA use NSAllowsArbitraryLoads=true. Configure HTTPS no servidor
+     Keycloak e remova qualquer exceção de transport security.
+
+  3. Certificate Pinning: Para produção, implemente certificate pinning
+     usando o TrustKit ou URLSession com delegate personalizado no
+     código nativo iOS (AppDelegate.swift).
+-->
+<plist version="1.0">
+<dict>
+    <!-- ── Identificação do Bundle ── -->
+    <key>CFBundleDevelopmentRegion</key>
+    <string>$(DEVELOPMENT_LANGUAGE)</string>
+
+    <key>CFBundleDisplayName</key>
+    <string>Secure App</string>
+
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <key>CFBundleName</key>
+    <string>secure_flutter_keycloak_app</string>
+
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>$(FLUTTER_BUILD_NAME)</string>
+
+    <key>CFBundleSignature</key>
+    <string>????</string>
+
+    <key>CFBundleVersion</key>
+    <string>$(FLUTTER_BUILD_NUMBER)</string>
+
+    <!-- ── Orientações suportadas (iPhone) ── -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+
+    <!-- ── Orientações suportadas (iPad) ── -->
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+
+    <!--
+      ── URL Schemes para callback OAuth2 (OBRIGATÓRIO) ──
+
+      Registra o scheme 'com.example.app' para receber os redirects
+      do Keycloak após autenticação e logout.
+
+      O flutter_appauth usa ASWebAuthenticationSession no iOS 12+,
+      que é isolada do app principal e gerenciada pelo sistema,
+      garantindo que as credenciais não sejam expostas ao app.
+
+      IMPORTANTE: Altere 'com.example.app' para o bundle identifier
+      ou scheme real do seu app. Registre o mesmo valor no Keycloak
+      como Valid Redirect URIs.
+    -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>keycloak-callback</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <!-- Scheme para redirect de login: com.example.app://callback -->
+                <string>com.example.app</string>
+            </array>
+        </dict>
+    </array>
+
+    <!--
+      ── App Transport Security ──
+
+      PRODUÇÃO: Remova NSAllowsArbitraryLoads e NSExceptionDomains.
+      Use apenas HTTPS e TLS 1.2+ no servidor Keycloak.
+
+      DESENVOLVIMENTO: Pode ser necessário permitir HTTP para
+      servidores locais (ex: localhost:8080).
+
+      NUNCA use NSAllowsArbitraryLoads=true em produção.
+    -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <!-- Remova esta chave em produção -->
+        <key>NSAllowsLocalNetworking</key>
+        <true/>
+        <!--
+          Exceção para servidor de desenvolvimento (remova em produção):
+          <key>NSExceptionDomains</key>
+          <dict>
+              <key>keycloak-dev.example.com</key>
+              <dict>
+                  <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                  <false/>
+                  <key>NSExceptionMinimumTLSVersion</key>
+                  <string>TLSv1.2</string>
+              </dict>
+          </dict>
+        -->
+    </dict>
+
+    <!-- ── Configurações do Flutter ── -->
+    <key>CADisableMinimumFrameDurationOnPhone</key>
+    <true/>
+
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true/>
+
+    <!-- Habilita acesso ao Keychain para flutter_secure_storage -->
+    <key>keychain-access-groups</key>
+    <array>
+        <string>$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    </array>
+</dict>
+</plist>

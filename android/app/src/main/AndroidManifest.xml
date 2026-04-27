@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AndroidManifest.xml para o aplicativo Flutter com autenticação Keycloak.
+
+  Configurações importantes de segurança:
+  1. O intent-filter para o callback OAuth2 registra o deep link
+     'com.example.app://callback' que o Keycloak usa para redirecionar
+     após autenticação. Altere 'com.example.app' para o scheme real
+     do seu aplicativo.
+
+  2. O flutter_appauth usa Chrome Custom Tabs (não WebView) para
+     abrir o navegador seguro do sistema. Isso garante que as
+     credenciais do usuário nunca sejam interceptadas pelo app.
+
+  3. HTTPS Network Security: Para produção, configure um arquivo
+     network_security_config.xml com certificate pinning.
+
+  4. Para Android 11+ (API 30+), declare as queries necessárias
+     para verificar se o navegador está disponível (já incluído
+     pela dependência flutter_appauth via net.openid.appauth).
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permissão de internet (obrigatória para comunicação com Keycloak) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:label="Secure App"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
+    >
+        <!--
+          Para produção, adicione o atributo abaixo na tag <application>:
+          android:networkSecurityConfig="@xml/network_security_config"
+          e crie o arquivo res/xml/network_security_config.xml com
+          as configurações de certificate pinning.
+        -->
+
+        <!--
+          Activity principal do Flutter.
+          O intent-filter de callback OAuth2 é registrado aqui para que
+          o sistema operacional redirecione o resultado da autenticação
+          de volta ao aplicativo.
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize"
+        >
+            <!-- Intent filter para abertura normal do app -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+              Intent filter para o callback OAuth2/OIDC do Keycloak.
+              O Keycloak redireciona para este URI após autenticação:
+              com.example.app://callback
+
+              IMPORTANTE: Altere 'com.example.app' para o package name
+              ou scheme real do seu aplicativo. O mesmo valor deve ser
+              configurado como redirectUri no Keycloak e na AppConfig.
+
+              Este deep link é tratado pelo flutter_appauth/AppAuth-Android
+              usando Chrome Custom Tabs, garantindo segurança.
+            -->
+            <intent-filter android:label="oauth_redirect">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="com.example.app"
+                    android:host="callback" />
+            </intent-filter>
+
+            <!--
+              Intent filter para o callback de logout do Keycloak.
+              post_logout_redirect_uri: com.example.app://logout
+            -->
+            <intent-filter android:label="oauth_logout_redirect">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="com.example.app"
+                    android:host="logout" />
+            </intent-filter>
+        </activity>
+
+        <!-- Não remova este meta-data: requerido pelo Flutter -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+
+    <!--
+      Para Android 11+ (API 30+): declara explicitamente as queries
+      de intent para verificar disponibilidade do navegador.
+      O flutter_appauth já inclui estas queries via sua biblioteca
+      (net.openid.appauth), mas listamos aqui para documentação.
+    -->
+    <queries>
+        <!-- Permite verificar se há navegador disponível para Custom Tabs -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+    </queries>
+
+</manifest>
