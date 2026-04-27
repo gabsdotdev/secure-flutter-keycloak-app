@@ -89,4 +89,3 @@ class SecureApp extends StatelessWidget {
     );
   }
 }
-

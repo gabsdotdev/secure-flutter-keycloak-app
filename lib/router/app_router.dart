@@ -95,4 +95,3 @@ class AppRouter {
     return null; // Sem redirecionamento necessário
   }
 }
-
