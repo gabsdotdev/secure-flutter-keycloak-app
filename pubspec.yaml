@@ -1,0 +1,35 @@
+name: secure_flutter_keycloak_app
+description: >
+  Aplicativo Flutter seguro com autenticação Keycloak usando
+  OAuth 2.0 / OpenID Connect com Authorization Code Flow + PKCE.
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Autenticação OIDC/OAuth2 com PKCE usando navegador seguro do sistema
+  flutter_appauth: ^6.0.2
+
+  # Armazenamento seguro de tokens (Android Keystore / iOS Keychain)
+  flutter_secure_storage: ^9.2.2
+
+  # Navegação declarativa
+  go_router: ^13.2.5
+
+  # Gerenciamento de estado
+  provider: ^6.1.2
+
+  # Ícones do Material Design
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
